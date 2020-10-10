@@ -1,0 +1,17 @@
+[package]
+name = "autolight"
+version = "0.1.0"
+authors = ["nasso <nassomails@gmail.com>"]
+edition = "2018"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+chrono = "0.4"
+ctrlc = "3.1"
+hotwatch = "0.4"
+win32_notification = "0.1"
+serde = { version = "1.0", features = ["derive"] }
+sunrise = "1.0"
+toml = "0.5"
+winapi = { version = "0.3", features = ["winreg", "winerror"] }
