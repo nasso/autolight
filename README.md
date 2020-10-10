@@ -52,7 +52,7 @@ To stop the process, set `disable = true` in the configuration file.
 
 ## Changelog
 
-### v1.0.0
+### v0.1.0
 - Initial release
 
 ## License
