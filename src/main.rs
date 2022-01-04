@@ -29,6 +29,10 @@ fn default_notifications() -> bool {
     true
 }
 
+fn default_refresh_period() -> u64 {
+    60
+}
+
 #[derive(Deserialize, Debug)]
 struct Config {
     #[serde(default)]
@@ -37,6 +41,8 @@ struct Config {
     notifications: bool,
     #[serde(default)]
     invert: bool,
+    #[serde(default = "default_refresh_period")]
+    refresh_period: u64,
     location: Location,
 }
 
@@ -135,7 +141,9 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
                     set_theme(if config.invert { theme.invert() } else { theme });
 
-                    let wait_duration = std::time::Duration::from_secs(wait_time.max(0) as u64);
+                    let wait_duration = std::time::Duration::from_secs(
+                        (wait_time.max(0) as u64).min(config.refresh_period),
+                    );
                     match receiver.recv_timeout(wait_duration) {
                         Ok(_) => break Action::ReloadConfig,
                         Err(RecvTimeoutError::Disconnected) => break Action::Exit,
