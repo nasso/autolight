@@ -1,16 +1,18 @@
-use {
-    std::{
-        ffi::OsStr,
-        iter::once,
-        mem::{size_of, transmute},
-        os::windows::ffi::OsStrExt,
-        ptr::null_mut,
-    },
-    winapi::{
-        shared::{minwindef::HKEY, winerror::ERROR_SUCCESS},
-        um::{
-            winnt::{KEY_WRITE, REG_DWORD, REG_OPTION_NON_VOLATILE},
-            winreg::{RegCloseKey, RegCreateKeyExW, RegSetValueExW, HKEY_CURRENT_USER},
+use std::{
+    ffi::OsStr,
+    iter::once,
+    mem::{size_of, transmute},
+    os::windows::ffi::OsStrExt,
+    ptr::null_mut,
+};
+
+use windows::{
+    core::PCWSTR,
+    Win32::{
+        Foundation::ERROR_SUCCESS,
+        System::Registry::{
+            RegCloseKey, RegCreateKeyExW, RegSetValueExW, HKEY, HKEY_CURRENT_USER, KEY_WRITE,
+            REG_DWORD, REG_OPTION_NON_VOLATILE,
         },
     },
 };
@@ -31,14 +33,14 @@ impl RegistryKey {
     };
 
     pub fn open_or_create(parent_key: &Self, sub_key: &str) -> Self {
-        let mut hkey: HKEY = null_mut();
+        let mut hkey = HKEY::default();
 
         let status = unsafe {
             RegCreateKeyExW(
                 parent_key.hkey,
-                os_str(sub_key).as_ptr(),
+                PCWSTR(os_str(sub_key).as_ptr()),
                 0,
-                null_mut(),
+                None,
                 REG_OPTION_NON_VOLATILE,
                 KEY_WRITE,
                 null_mut(),
@@ -47,9 +49,7 @@ impl RegistryKey {
             )
         };
 
-        if status as u32 != ERROR_SUCCESS {
-            panic!("Error opening or creating new key");
-        }
+        assert_eq!(status, ERROR_SUCCESS, "Error opening or creating new key");
 
         Self {
             predefined: false,
@@ -61,7 +61,7 @@ impl RegistryKey {
         let status = unsafe {
             RegSetValueExW(
                 self.hkey,
-                os_str(value).as_ptr(),
+                PCWSTR(os_str(value).as_ptr()),
                 0,
                 REG_DWORD,
                 transmute(&data as *const u32),
@@ -69,9 +69,7 @@ impl RegistryKey {
             )
         };
 
-        if status as u32 != ERROR_SUCCESS {
-            panic!("Error setting the key value");
-        }
+        assert_eq!(status, ERROR_SUCCESS, "Error setting the key value");
     }
 }
 

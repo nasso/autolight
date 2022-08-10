@@ -8,10 +8,14 @@ edition = "2018"
 
 [dependencies]
 chrono = "0.4"
-ctrlc = "3.1"
+ctrlc = "3"
 hotwatch = "0.4"
 win32_notification = "0.1"
-serde = { version = "1.0", features = ["derive"] }
-sunrise = "1.0"
+serde = { version = "1", features = ["derive"] }
+sunrise = "1"
 toml = "0.5"
-winapi = { version = "0.3", features = ["winreg", "winerror"] }
+anyhow = "1"
+
+[dependencies.windows]
+version = "0.39"
+features = ["Win32_System_Registry", "Win32_Foundation", "Win32_Security"]

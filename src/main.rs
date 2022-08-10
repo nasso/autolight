@@ -67,13 +67,12 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     let (sender, receiver) = channel();
 
-    hotwatch.watch(&config_file_path, move |event: Event| match event {
-        Event::Write(_) => {
+    hotwatch.watch(&config_file_path, move |event: Event| {
+        if let Event::Write(_) = event {
             sender
                 .send(())
                 .expect("Failed to send signal to main thread.");
         }
-        _ => (),
     })?;
 
     loop {
@@ -163,7 +162,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                     .show()
                     .unwrap();
 
-                if let Err(_) = receiver.recv() {
+                if receiver.recv().is_err() {
                     break;
                 }
             }
