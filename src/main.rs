@@ -1,5 +1,7 @@
 #![windows_subsystem = "windows"]
 
+use notification::notify;
+mod notification;
 mod regkey;
 mod theme;
 
@@ -55,13 +57,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let config_file_path = Path::new(&env::var("USERPROFILE")?).join(".autolight.toml");
 
     if !config_file_path.is_file() {
-        NotificationBuilder::new()
-            .title_text("Error")
-            .info_text("Couldn't find the configuration file. Exiting...")
-            .build()
-            .unwrap()
-            .show()
-            .unwrap();
+        notify("Error", "Couldn't find the configuration file. Exiting...");
         std::process::exit(1);
     }
 
@@ -92,13 +88,10 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         match config {
             Ok(config) if config.disable => {
                 if config.notifications {
-                    NotificationBuilder::new()
-                        .title_text("autolight is disabled")
-                        .info_text("Enable it in the configuration file")
-                        .build()
-                        .unwrap()
-                        .show()
-                        .unwrap();
+                    notify(
+                        "autolight is disabled",
+                        "Enable it in the configuration file",
+                    );
                 }
 
                 std::process::exit(0);
