@@ -1,12 +1,13 @@
 #![windows_subsystem = "windows"]
 
+use chrono::Local;
 use notification::notify;
 mod notification;
 mod regkey;
 mod theme;
 
 use {
-    chrono::{Datelike, Duration, Utc},
+    chrono::{Datelike, Duration},
     hotwatch::{Event, Hotwatch},
     serde::Deserialize,
     std::{
@@ -98,7 +99,9 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             }
             Ok(config) => {
                 match loop {
-                    let now = Utc::now();
+                    let now = Local::now();
+
+                    dbg!(&now);
 
                     // sunrise & sunset are the unix timestamp (in seconds) of the sunrise/sunset
                     let (sunrise, sunset) = sunrise_sunset(
