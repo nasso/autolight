@@ -2,6 +2,23 @@
 
 Tiny Windows program that turns on/off dark theme at sunrise/sunset.
 
+## Installation
+
+You can download the pre-built binary for the latest release on the
+[GitHub releases page](https://github.com/nasso/autolight/releases). You can put
+it anywhere you want on your computer. You can also build from source with
+`cargo` if you prefer (see [Building](#building) below).
+
+### Running on startup
+
+You will probably want to run the program at startup. To do so, add a shortcut
+to the executable (or the executable itself) in the "Start-up" folder:
+
+1. Copy the executable (`autolight.exe`)
+2. `Windows + R` and type `shell:startup`. This will open the "Start-up" folder.
+3. In the new explorer window, right-click and select "Paste shortcut". On
+   Windows 11, you might have to "Show more options" first.
+
 ## Configuration
 
 **The configuration file is mandatory.** It's loaded from
