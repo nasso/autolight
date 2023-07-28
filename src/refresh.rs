@@ -19,7 +19,8 @@ use windows::Win32::{
         EnumWindows,
         WM_SETTINGCHANGE,
         SendMessageTimeoutW,
-        SMTO_NORMAL
+        SMTO_BLOCK,
+        SMTO_NOTIMEOUTIFNOTHUNG
     }
 };
 
@@ -38,8 +39,8 @@ unsafe extern "system" fn refresh_window_callback(hwnd: HWND, _: LPARAM) -> BOOL
         WM_SETTINGCHANGE,
         WPARAM(0),
         LPARAM(os_str("ImmersiveColorSet").as_ptr() as isize),
-        SMTO_NORMAL,
-        400,
+        SMTO_BLOCK | SMTO_NOTIMEOUTIFNOTHUNG,
+        200,
         null_mut()
     );
 
@@ -48,8 +49,8 @@ unsafe extern "system" fn refresh_window_callback(hwnd: HWND, _: LPARAM) -> BOOL
         WM_THEMECHANGED,
         WPARAM(0),
         LPARAM(0),
-        SMTO_NORMAL,
-        400,
+        SMTO_BLOCK | SMTO_NOTIMEOUTIFNOTHUNG,
+        200,
         null_mut()
     );
     
@@ -73,17 +74,6 @@ pub fn refresh_windows() {
 
     // refresh the windows
     unsafe {
-        EnumWindows(Some(refresh_window_callback), LPARAM(0));
-    }
-
-    // quite ugly hack:
-    // we refresh a few other times to ensure the windows get the call!
-    // e.g. the taskbar in windows 11 might not change its colors correctly!
-    for _ in 0..2 {
-        sleep(Duration::from_millis(3000));
-
-        unsafe {
-            EnumWindows(Some(refresh_window_callback), LPARAM(0));
-        }
+        EnumWindows(Some(refresh_window_callback), LPARAM(1));
     }
 }
