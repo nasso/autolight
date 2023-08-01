@@ -19,7 +19,7 @@ use windows::Win32::{
         EnumWindows,
         WM_SETTINGCHANGE,
         SendMessageTimeoutW,
-        SMTO_BLOCK,
+        SMTO_NORMAL,
         SMTO_NOTIMEOUTIFNOTHUNG
     }
 };
@@ -39,7 +39,7 @@ unsafe extern "system" fn refresh_window_callback(hwnd: HWND, _: LPARAM) -> BOOL
         WM_SETTINGCHANGE,
         WPARAM(0),
         LPARAM(os_str("ImmersiveColorSet").as_ptr() as isize),
-        SMTO_BLOCK | SMTO_NOTIMEOUTIFNOTHUNG,
+        SMTO_NORMAL | SMTO_NOTIMEOUTIFNOTHUNG,
         200,
         null_mut()
     );
@@ -49,7 +49,7 @@ unsafe extern "system" fn refresh_window_callback(hwnd: HWND, _: LPARAM) -> BOOL
         WM_THEMECHANGED,
         WPARAM(0),
         LPARAM(0),
-        SMTO_BLOCK | SMTO_NOTIMEOUTIFNOTHUNG,
+        SMTO_NORMAL | SMTO_NOTIMEOUTIFNOTHUNG,
         200,
         null_mut()
     );
@@ -58,8 +58,6 @@ unsafe extern "system" fn refresh_window_callback(hwnd: HWND, _: LPARAM) -> BOOL
 }
 
 pub fn refresh_windows() {
-    sleep(Duration::from_millis(20));
-
     let key = RegistryKey::open_or_create(
         &RegistryKey::HKCU,
         "SOFTWARE\\Microsoft\\Windows\\DWM",
