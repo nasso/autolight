@@ -1,4 +1,4 @@
-use crate::regkey::RegistryKey;
+use crate::{regkey::{RegistryKey, RegistryPermission}, refresh::refresh_windows};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum ThemeVariant {
@@ -24,8 +24,11 @@ pub fn set_theme(variant: ThemeVariant) {
     let key = RegistryKey::open_or_create(
         &RegistryKey::HKCU,
         "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Themes\\Personalize",
+        RegistryPermission::Write,
     );
 
     key.set_dword("AppsUseLightTheme", value);
     key.set_dword("SystemUsesLightTheme", value);
+
+    refresh_windows();
 }

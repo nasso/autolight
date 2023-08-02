@@ -12,7 +12,7 @@ use windows::{
         Foundation::ERROR_SUCCESS,
         System::Registry::{
             RegCloseKey, RegCreateKeyExW, RegSetValueExW, HKEY, HKEY_CURRENT_USER, KEY_WRITE,
-            REG_DWORD, REG_OPTION_NON_VOLATILE,
+            REG_DWORD, REG_OPTION_NON_VOLATILE, RegGetValueW, RRF_RT_DWORD, KEY_QUERY_VALUE,
         },
     },
 };
@@ -26,14 +26,27 @@ pub struct RegistryKey {
     hkey: HKEY,
 }
 
+#[allow(dead_code)]
+pub enum RegistryPermission {
+    Read,
+    Write,
+    ReadWrite
+}
+
 impl RegistryKey {
     pub const HKCU: Self = Self {
         predefined: true,
         hkey: HKEY_CURRENT_USER,
     };
 
-    pub fn open_or_create(parent_key: &Self, sub_key: &str) -> Self {
+    pub fn open_or_create(parent_key: &Self, sub_key: &str, permission: RegistryPermission) -> Self {
         let mut hkey = HKEY::default();
+
+        let sam_permissions = match permission {
+            RegistryPermission::ReadWrite => KEY_WRITE | KEY_QUERY_VALUE,
+            RegistryPermission::Read => KEY_QUERY_VALUE,
+            RegistryPermission::Write => KEY_WRITE
+        };
 
         let status = unsafe {
             RegCreateKeyExW(
@@ -42,7 +55,7 @@ impl RegistryKey {
                 0,
                 None,
                 REG_OPTION_NON_VOLATILE,
-                KEY_WRITE,
+                sam_permissions,
                 null_mut(),
                 &mut hkey,
                 null_mut(),
@@ -55,6 +68,27 @@ impl RegistryKey {
             predefined: false,
             hkey,
         }
+    }
+
+    pub fn get_dword(&self, value: &str) -> u32 {
+        let mut data: u32 = 0;
+        let mut size = size_of::<u32>() as u32;
+
+        let status: windows::Win32::Foundation::WIN32_ERROR = unsafe {
+            RegGetValueW(
+                self.hkey,
+                PCWSTR(null_mut()),
+                PCWSTR(os_str(value).as_ptr()),
+                RRF_RT_DWORD,
+                null_mut(),
+                transmute(&mut data as *mut u32),
+                transmute(&mut size as *mut u32),
+            )
+        };
+
+        assert_eq!(status, ERROR_SUCCESS, "Error getting the key value");
+
+        data
     }
 
     pub fn set_dword(&self, value: &str, data: u32) {
